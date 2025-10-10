@@ -1,11 +1,15 @@
 import mongoose from "mongoose";
+import dotenv from "dotenv";
+dotenv.config();
 
-function connect(){
-    mongoose.connect('mongodb://localhost:27017/AI_database').then(function(){
-        console.log('connected to databse successfully')
-    }).catch(err=>{
-        console.log(err)
+function connect() {
+    mongoose.connect(process.env.MONGO_URI)
+    .then(function() {
+        console.log('Connected to MongoDB Atlas successfully');
     })
+    .catch(err => {
+        console.log(err);
+    });
 }
 
-export default connect
+export default connect;
