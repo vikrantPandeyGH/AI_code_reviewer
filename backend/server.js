@@ -57,10 +57,25 @@ io.on("connection", (socket) => {
     socket.emit("code-history", project.code || "");
   });
 
-  socket.on("code-review", async function (code) {
+ socket.on("code-review", async function (code) {
+  try {
     const review = await codereviewer(code);
-    socket.emit("code-review", review);
-  });
+
+    socket.emit("code-review", {
+      success: true,
+      data: review,
+    });
+
+  } catch (error) {
+    console.log("AI Review Error occurred");
+
+    socket.emit("code-review", {
+      success: false,
+      message: "AI service is temporarily unavailable. Please try again later.",
+    });
+  }
+});
+
 });
 
 server.listen(3000, function () {
