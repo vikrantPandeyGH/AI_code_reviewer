@@ -12,6 +12,8 @@ const Projectpage = () => {
   const [code, setCode] = useState("// Start coding...");
   const [reviewContent, setReviewContent] = useState("");
   const [language, setLanguage] = useState("javascript");
+  const [isReviewing, setIsReviewing] = useState(false);
+
 
   useEffect(() => {
     const temp = io("http://localhost:3000", {
@@ -39,9 +41,16 @@ const Projectpage = () => {
       setCode(newCode);
     });
 
-    temp.on("code-review", function (rev) {
-      setReviewContent(rev);
-    });
+  temp.on("code-review", function (rev) {
+  setIsReviewing(false); // response aate hi button enable
+
+  if (rev.success === false) {
+    setReviewContent("⚠️ " + rev.message);
+  } else {
+    setReviewContent(rev.data);
+  }
+});
+
     setSocket(temp);
   }, []);
 
@@ -51,11 +60,13 @@ const Projectpage = () => {
     setInput("");
   }
 
-  function reviewgenerater() {
-    if (Socket) {
-      Socket.emit("code-review", code);
-    }
+ function reviewgenerater() {
+  if (Socket) {
+    setIsReviewing(true); // button disable
+    Socket.emit("code-review", code);
   }
+}
+
 
   function handleCodeChange(value) {
     setCode(value);
@@ -151,14 +162,13 @@ const Projectpage = () => {
 
       {/* Review Section */}
       <div id="review" style={{ overflowY: "auto", padding: "5px" }}>
-        <button
-          id="reviewer"
-          onClick={function () {
-            reviewgenerater();
-          }}
-        >
-          generate review
-        </button>
+      <button
+  id="reviewer"
+  disabled={isReviewing}
+  onClick={reviewgenerater}
+>
+  {isReviewing ? "Generating..." : "Generate Review"}
+</button>
 
         <div
           style={{
